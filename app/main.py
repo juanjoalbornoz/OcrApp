@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.requests import Request
+from pathlib import Path
 import os
 
 from app.ocr import process_file
@@ -20,5 +21,17 @@ async def form_page(request: Request):
 
 @app.post("/upload")
 async def upload_file(request: Request, file: UploadFile = File(...)):
-    output_path = await process_file(file)
-    return FileResponse(output_path, media_type="application/pdf", filename=output_path.name)
+    nombre_base = await process_file(file)
+    return templates.TemplateResponse(
+        "resultados.html",
+        {"request": request, "nombre_base": nombre_base}
+    )
+
+from fastapi.responses import FileResponse
+
+@app.get("/descargar/{nombre_archivo}")
+async def descargar_archivo(nombre_archivo: str):
+    ruta = Path("outputs") / nombre_archivo
+    if ruta.exists():
+        return FileResponse(ruta, media_type="application/octet-stream", filename=nombre_archivo)
+    return {"error": "Archivo no encontrado"}

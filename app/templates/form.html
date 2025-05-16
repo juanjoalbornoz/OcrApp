@@ -7,7 +7,16 @@
 <body>
     <h1>OCR - Subí tu archivo</h1>
     <form action="/upload" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required>
+        <label for="file">📎 Seleccioná un archivo (.pdf, .jpg, .png):</label><br>
+        <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required><br><br>
+        
+        <input type="checkbox" name="preprocesar" id="preprocesar" checked>
+        <label for="preprocesar"><strong>Aplicar mejora de imagen antes del OCR</strong></label><br>
+        <small style="color: #555;">
+            ✅ Recomendado para escaneos borrosos, fotos de celular o documentos de baja calidad.<br>
+            ❌ Desactivar si el archivo ya es nítido o tiene firmas, sellos o tablas complejas.
+        </small><br><br>
+    
         <button type="submit">Procesar</button>
     </form>
 </body>

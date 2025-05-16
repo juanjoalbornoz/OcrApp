@@ -20,8 +20,12 @@ async def form_page(request: Request):
     return templates.TemplateResponse("form.html", {"request": request})
 
 @app.post("/upload")
-async def upload_file(request: Request, file: UploadFile = File(...)):
-    nombre_base = await process_file(file)
+async def upload_file(
+    request: Request,
+    file: UploadFile = File(...),
+    preprocesar: bool = Form(False)
+):
+    nombre_base = await process_file(file, preprocesar)
     return templates.TemplateResponse(
         "resultados.html",
         {"request": request, "nombre_base": nombre_base}

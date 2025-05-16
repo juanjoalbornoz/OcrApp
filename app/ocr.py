@@ -1,3 +1,4 @@
+from app.preprocess import preprocesar_imagen
 from pathlib import Path
 from pdf2image import convert_from_path
 import pytesseract
@@ -11,7 +12,7 @@ OUTPUT_FOLDER = "outputs"
 Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
 Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
 
-async def process_file(file):
+async def process_file(file, aplicar_preprocesamiento=True):
     # Guardar archivo temporalmente
     file_path = Path(UPLOAD_FOLDER) / f"{uuid.uuid4()}_{file.filename}"
     with open(file_path, "wb") as f:
@@ -27,7 +28,13 @@ async def process_file(file):
     # Extraer texto con Tesseract
     full_text = ""
     for image in images:
-        text = pytesseract.image_to_string(image)
+        if aplicar_preprocesamiento:
+            imagen_procesada = preprocesar_imagen(image)
+        else:
+            imagen_procesada = image
+    
+        custom_config = r'--oem 3 --psm 4'
+        text = pytesseract.image_to_string(imagen_procesada, config=custom_config)
         full_text += text + "\n\n"
 
     # Guardar como .docx

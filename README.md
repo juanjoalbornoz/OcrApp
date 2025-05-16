@@ -3,49 +3,50 @@
 **Trabajo Final Integrador - Técnicas de Procesamiento Digital de Imágenes**
 
 📅 Año: 2025  
-👨🏻‍🏫 Profesor: Juan Ignacio Bonini  
+👨🏻‍🏫 Profesor: Juan Ignacio Bonini
+🏫 Institución: IFTS 18
 👤 Alumnos:
 - Juan Jose Albornoz
 - Estefany Herrera Martinez
 - Carolina Linares
-- Gonzalo Rey del Castillo 
+- Gonzalo Rey del Castillo
 
 ---
 
 ## ✨ Descripción del proyecto
 
-Esta aplicación web permite subir archivos de imagen o PDF escaneados y devuelve un documento `.docx` con el texto extraído, listo para copiar, editar o guardar.
+**OcrAPP** es una aplicación web que permite subir imágenes o PDFs escaneados y devuelve el texto extraído en formatos `.docx` y `.txt`.
 
-El objetivo es facilitar la lectura automática (OCR) de apuntes, facturas, formularios y cualquier otro documento escaneado, mejorando la accesibilidad al contenido textual.
-
-Desarrollado usando Python, FastAPI, OpenCV y Tesseract OCR, este proyecto integra procesamiento digital de imágenes con una interfaz web simple y amigable.
-
----
-
-## 🎯 Objetivo del TP
-
-> _“Proponer, diseñar y desarrollar una solución técnica basada en procesamiento digital de imágenes que permita realizar OCR, utilizando programación orientada a objetos y control de versiones con Git.”_
+Su objetivo es facilitar la digitalización de apuntes, estudios médicos, facturas y otros documentos escaneados, combinando procesamiento digital de imágenes con una interfaz clara y práctica.
 
 ---
 
 ## 🚀 Funcionalidades
 
 - 📤 Subida de archivos `.pdf`, `.jpg`, `.jpeg` o `.png`
-- 🔎 Extracción de texto mediante OCR con Tesseract
-- 📝 Generación automática de archivo `.docx` descargable
-- 💻 Interfaz web simple con HTML + CSS
-- 📁 Organización modular del código
+- 🧼 Opción de mejora de imagen antes del OCR (preprocesamiento)
+- 🔎 Extracción de texto con Tesseract OCR (configurado con `psm 4` u `6`)
+- 📝 Exportación en formato `.docx` y `.txt`
+- 🖥️ Interfaz web visual con botones de descarga
 - 🌐 API REST con FastAPI
+- 📁 Organización modular del código
 - 🧠 Programación orientada a objetos
+- ✅ Control de versiones con Git
+- 🗂️ Registro de cambios (`CHANGELOG.md`)
 
 ---
 
-## 🧪 Requisitos del sistema
+## 🧼 Casos de uso del preprocesamiento
 
-- Python 3.9 o superior
-- macOS, Linux o Windows
-- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
-- [Poppler](https://poppler.freedesktop.org/) (para PDFs)
+El usuario puede elegir aplicar mejora de imagen antes del OCR. A continuación se muestran las situaciones en las que conviene o no utilizar esta opción:
+
+| Tipo de documento                          | ¿Aplicar mejora? | Motivo                                                                 |
+|--------------------------------------------|------------------|------------------------------------------------------------------------|
+| 📄 PDF limpio y generado por computadora   | ❌ No             | Ya tiene buena calidad, el OCR funciona bien directamente              |
+| 📸 Foto de celular con sombras o torcido   | ✅ Sí             | Mejora contraste y claridad para reconocimiento                        |
+| 🧾 Documento escaneado con letra chica     | ✅ Sí             | Binarización ayuda a separar texto del fondo                          |
+| 🖋️ Documento con firmas o sellos           | ❌ No             | La binarización puede deformar o eliminar partes importantes           |
+| 📃 Formularios con muchas tablas           | ✅ o ❌ Dependiendo| Probar ambas, puede funcionar mejor sin mejora si las líneas son nítidas|
 
 ---
 
@@ -76,29 +77,23 @@ env\Scripts\activate
 pip install -r requirements.txt
 ```
 
----
-
 ### 4. Instalar Tesseract OCR
 
-#### 🖥️ macOS (con Homebrew):
+#### macOS:
 
 ```bash
 brew install tesseract
 ```
 
-#### 🐧 Ubuntu/Debian:
+#### Ubuntu:
 
 ```bash
 sudo apt install tesseract-ocr
 ```
 
-#### 🪟 Windows:
+#### Windows:
 
-1. Descargar desde [https://github.com/UB-Mannheim/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki)
-2. Agregar la carpeta de instalación al **PATH del sistema**
-3. Activar idioma español si se desea
-
----
+Descargar desde [https://github.com/UB-Mannheim/tesseract/wiki](https://github.com/UB-Mannheim/tesseract/wiki)
 
 ### 5. Instalar Poppler (para PDFs)
 
@@ -116,15 +111,13 @@ sudo apt install poppler-utils
 
 ---
 
-### 6. Ejecutar la aplicación
+## 🚀 Ejecutar la aplicación
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-Luego ingresar a:
-
-📎 http://localhost:8000
+📎 Luego ingresá a: http://localhost:8000
 
 ---
 
@@ -135,31 +128,21 @@ ocr-app/
 ├── app/
 │   ├── main.py          # API principal
 │   ├── ocr.py           # Lógica de OCR
-│   ├── utils.py         # (futuro) utilidades auxiliares
+│   ├── preprocess.py    # Mejora de imagen
 │   └── templates/
-│       └── form.html    # Interfaz HTML
+│       └── form.html    # Formulario web
 ├── static/
-│   └── style.css        # Estilos CSS
-├── uploads/             # Archivos temporales subidos
-├── outputs/             # Resultados generados
-├── requirements.txt     # Dependencias del proyecto
-├── .gitignore
-└── README.md
+│   └── style.css        # Estilos
+├── uploads/             # Archivos temporales
+├── outputs/             # Archivos generados
+├── requirements.txt
+├── README.md
+├── CHANGELOG.md
+└── .gitignore
 ```
-
----
-
-## 💬 Posibles mejoras
-
-- 📄 Opción de exportar también a `.txt`
-- 🧼 Preprocesamiento de imagen: binarización, mejora de contraste, reducción de ruido
-- 🌍 Soporte multilenguaje OCR
-- 🖼️ Visualización previa del texto antes de descargar
-- 🧰 Dockerización para despliegue fácil
-- 🧪 Tests automatizados
 
 ---
 
 ## ❤️ Créditos
 
-Este proyecto fue desarrollado con amor, mate y muchas líneas de código por Juanjo, Estefy, Carito y Gonza como parte del trabajo final para la materia **Técnicas de Procesamiento Digital de Imágenes**. Gracias a todos los que acompañaron el proceso 🤗
+Este proyecto fue desarrollado con amor, pruebas, mate y muchas líneas de código por Juanjo, Estefy, Carito y Gonza como parte del trabajo final para la materia **Técnicas de Procesamiento Digital de Imágenes**. Gracias a todos los que acompañaron el proceso 🤗

@@ -50,6 +50,22 @@ El usuario puede elegir aplicar mejora de imagen antes del OCR. A continuación 
 
 ---
 
+## 🐳 Despliegue con Docker (Render)
+
+Esta app ahora puede ejecutarse y desplegarse usando contenedores Docker.
+
+### Archivos agregados:
+
+- `Dockerfile`: contiene las instrucciones para construir la imagen con Tesseract y Poppler
+- `render.yaml`: configuración para despliegue automático en Render
+
+### Despliegue en la nube
+
+La app está desplegada en:  
+🔗 [https://ocrapp.data-bi.ar](https://ocrapp.data-bi.ar)
+
+---
+
 ## ⚙️ Instalación y ejecución local
 
 ### 1. Clonar el repositorio

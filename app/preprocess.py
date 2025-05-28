@@ -21,7 +21,6 @@ PIL.Image
     Imagen procesada, binarizada y sin ruido, en formato PIL.
 """
 
-
 import cv2
 import numpy as np
 from PIL import Image

@@ -1,3 +1,16 @@
+"""
+Módulo de procesamiento OCR de la aplicación.
+
+Responsable de recibir archivos desde la capa web (definida en main.py), aplicar
+preprocesamiento de imágenes opcional, extraer texto mediante Tesseract OCR,
+y guardar los resultados en archivos `.docx` y `.txt`.
+
+Funciones principales:
+- `process_file`: función asincrónica que encapsula todo el flujo de procesamiento.
+
+Este módulo es invocado desde la ruta POST `/upload` en main.py.
+"""
+
 from app.preprocess import preprocesar_imagen
 from pathlib import Path
 from pdf2image import convert_from_path
@@ -13,6 +26,30 @@ Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
 Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
 
 async def process_file(file, aplicar_preprocesamiento=True):
+    """
+    Procesa un archivo (PDF o imagen), extrae su contenido mediante OCR y lo guarda como .docx y .txt.
+
+    El archivo se guarda temporalmente, se convierte a imágenes si es un PDF,
+    y se aplica OCR con Tesseract a cada imagen. Opcionalmente se realiza preprocesamiento
+    para mejorar la precisión del OCR. El resultado se guarda en dos formatos de texto.
+
+    Esta función es invocada desde el endpoint `/upload` definido en `main.py`.
+
+    Parámetros
+    ----------
+    file : UploadFile
+        Archivo subido por el usuario (puede ser imagen o PDF). Se espera un objeto tipo FastAPI UploadFile.
+
+    aplicar_preprocesamiento : bool, opcional
+        Si es True, se aplica una rutina de preprocesamiento a las imágenes antes de ejecutar OCR. Por defecto es True.
+
+    Retorna
+    -------
+    str
+        Nombre base del archivo (sin extensión), que puede usarse para localizar los archivos generados (.docx y .txt)
+        dentro del directorio de salida.
+    """
+
     # Guardar archivo temporalmente
     file_path = Path(UPLOAD_FOLDER) / f"{uuid.uuid4()}_{file.filename}"
     with open(file_path, "wb") as f:

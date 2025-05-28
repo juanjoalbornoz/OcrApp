@@ -1,3 +1,30 @@
+"""
+Módulo de preprocesamiento de imágenes para OCR u otras tareas de visión por computadora.
+
+Funciones:
+----------
+preprocesar_imagen(pil_image):
+    Aplica una serie de transformaciones sobre una imagen en formato PIL para mejorar
+    su calidad y facilitar el reconocimiento óptico de caracteres (OCR) u otras tareas
+    de análisis de imagen.
+
+    El procesamiento incluye:
+    - Conversión a escala de grises (si es RGB).
+    - Aumento de contraste mediante ecualización del histograma.
+    - Binarización con el umbral de Otsu.
+    - Reducción de ruido usando filtro de mediana.
+
+Parámetros
+----------
+pil_image : PIL.Image
+    Imagen de entrada en formato PIL.
+
+Retorna
+-------
+PIL.Image
+    Imagen procesada, binarizada y sin ruido, en formato PIL.
+"""
+
 import cv2
 import numpy as np
 from PIL import Image

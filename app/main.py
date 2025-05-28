@@ -1,3 +1,36 @@
+"""
+Archivo principal de la aplicación FastAPI para procesamiento OCR.
+
+Este módulo define las rutas de la API y la interfaz web para subir archivos, aplicar OCR,
+y descargar los resultados generados. Se conecta con el módulo `app.ocr` para ejecutar
+el procesamiento del archivo subido.
+
+Rutas expuestas:
+----------------
+GET / 
+    Muestra un formulario HTML para cargar archivos.
+
+POST /upload
+    Recibe un archivo subido por el usuario (imagen o PDF) y un flag opcional para aplicar preprocesamiento.
+    Llama internamente a `process_file` del módulo `app.ocr`.
+
+GET /descargar/{nombre_archivo}
+    Devuelve el archivo generado (.docx o .txt) desde la carpeta `outputs/`.
+
+Archivos y carpetas utilizadas:
+-------------------------------
+- uploads/: carpeta temporal donde se guardan los archivos subidos.
+- outputs/: carpeta donde se guardan los resultados del OCR.
+- static/: recursos estáticos (CSS, etc.).
+- app/templates/: plantillas HTML para el formulario y los resultados.
+
+Dependencias clave:
+-------------------
+- FastAPI (framework principal)
+- Jinja2 (plantillas HTML)
+- app.ocr.process_file (lógica de OCR)
+"""
+
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles

@@ -25,6 +25,7 @@ OUTPUT_FOLDER = "outputs"
 Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
 Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
 
+
 async def process_file(file, aplicar_preprocesamiento=True):
     """
     Procesa un archivo (PDF o imagen), extrae su contenido mediante OCR y lo guarda como .docx y .txt.

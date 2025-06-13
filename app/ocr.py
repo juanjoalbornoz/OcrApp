@@ -1,90 +1,75 @@
-"""
-Módulo de procesamiento OCR de la aplicación.
-
-Responsable de recibir archivos desde la capa web (definida en main.py), aplicar
-preprocesamiento de imágenes opcional, extraer texto mediante Tesseract OCR,
-y guardar los resultados en archivos `.docx` y `.txt`.
-
-Funciones principales:
-- `process_file`: función asincrónica que encapsula todo el flujo de procesamiento.
-
-Este módulo es invocado desde la ruta POST `/upload` en main.py.
-"""
-
-from app.preprocess import preprocesar_imagen
+import uuid
+import io
 from pathlib import Path
+from PIL import Image
 from pdf2image import convert_from_path
 import pytesseract
-from PIL import Image
 from docx import Document
-import uuid
-import os
+from fastapi import UploadFile
 
-UPLOAD_FOLDER = "uploads"
-OUTPUT_FOLDER = "outputs"
-Path(UPLOAD_FOLDER).mkdir(exist_ok=True)
-Path(OUTPUT_FOLDER).mkdir(exist_ok=True)
+from app.preprocess import ImagePreprocessor
 
+async def process_file(
+    file: UploadFile,
+    opciones_preproceso: dict,
+    upload_folder: Path,
+    output_folder: Path,
+    diagnostic_folder: Path
+):
+    nombre_base = f"{uuid.uuid4()}_{Path(file.filename).stem}"
+    file_path = upload_folder / f"{nombre_base}{Path(file.filename).suffix}"
+    
+    file_content = await file.read()
+    file_path.write_bytes(file_content)
 
-async def process_file(file, aplicar_preprocesamiento=True):
-    """
-    Procesa un archivo (PDF o imagen), extrae su contenido mediante OCR y lo guarda como .docx y .txt.
-
-    El archivo se guarda temporalmente, se convierte a imágenes si es un PDF,
-    y se aplica OCR con Tesseract a cada imagen. Opcionalmente se realiza preprocesamiento
-    para mejorar la precisión del OCR. El resultado se guarda en dos formatos de texto.
-
-    Esta función es invocada desde el endpoint `/upload` definido en `main.py`.
-
-    Parámetros
-    ----------
-    file : UploadFile
-        Archivo subido por el usuario (puede ser imagen o PDF). Se espera un objeto tipo FastAPI UploadFile.
-
-    aplicar_preprocesamiento : bool, opcional
-        Si es True, se aplica una rutina de preprocesamiento a las imágenes antes de ejecutar OCR. Por defecto es True.
-
-    Retorna
-    -------
-    str
-        Nombre base del archivo (sin extensión), que puede usarse para localizar los archivos generados (.docx y .txt)
-        dentro del directorio de salida.
-    """
-
-    # Guardar archivo temporalmente
-    file_path = Path(UPLOAD_FOLDER) / f"{uuid.uuid4()}_{file.filename}"
-    with open(file_path, "wb") as f:
-        f.write(await file.read())
-
-    # Convertir PDF a imágenes o abrir imagen directamente
-    if file.filename.endswith(".pdf"):
-        images = convert_from_path(file_path)
+    # --- Convertir archivo a imágenes ---
+    images = []
+    if file.filename.lower().endswith(".pdf"):
+        try:
+            images = convert_from_path(file_path, dpi=300)
+        except Exception as e:
+            print(f"Error al convertir PDF. Asegúrate de que Poppler esté en el PATH. Error: {e}")
+            raise ValueError("Error al procesar el PDF. Poppler podría no estar instalado.")
     else:
-        image = Image.open(file_path)
+        image = Image.open(io.BytesIO(file_content)).convert("RGB")
         images = [image]
 
-    # Extraer texto con Tesseract
+    # --- Inicializar salida ---
     full_text = ""
-    for image in images:
-        if aplicar_preprocesamiento:
-            imagen_procesada = preprocesar_imagen(image)
-        else:
-            imagen_procesada = image
-    
-        custom_config = r'--oem 3 --psm 4'
-        text = pytesseract.image_to_string(imagen_procesada, config=custom_config)
-        full_text += text + "\n\n"
+    diagnostic_image_path = None
+    custom_config = r'--oem 3 --psm 6 -l spa'
 
-    # Guardar como .docx
+    # --- Procesar cada imagen ---
+    for i, image in enumerate(images):
+        print(f"Procesando página/imagen {i + 1}...")
+
+        # Usar el preprocesador con clase
+        preprocessor = ImagePreprocessor(opciones_preproceso)
+        imagen_procesada = preprocessor.process(image)
+
+        # Guardar imagen diagnóstica solo para la primera
+        if i == 0:
+            diagnostic_file_name = f"{nombre_base}_diagnostic.png"
+            diagnostic_path_full = diagnostic_folder / diagnostic_file_name
+            imagen_procesada.save(diagnostic_path_full)
+            diagnostic_image_path = diagnostic_file_name
+
+        try:
+            text = pytesseract.image_to_string(imagen_procesada, config=custom_config)
+            full_text += text.strip() + "\n\n"
+        except pytesseract.TesseractError as e:
+            print(f"Error de Tesseract en la página {i+1}: {e}")
+            full_text += f"[Error al procesar página {i+1}]\n\n"
+
+    # --- Guardar salida .txt y .docx ---
+    output_txt = output_folder / f"{nombre_base}.txt"
+    output_txt.write_text(full_text, encoding="utf-8")
+
     doc = Document()
     doc.add_paragraph(full_text)
-    output_docx = Path(OUTPUT_FOLDER) / f"{file_path.stem}.docx"
+    output_docx = output_folder / f"{nombre_base}.docx"
     doc.save(output_docx)
+    
+    file_path.unlink()
 
-    # Guardar como .txt
-    output_txt = Path(OUTPUT_FOLDER) / f"{file_path.stem}.txt"
-    with open(output_txt, "w", encoding="utf-8") as txt_file:
-        txt_file.write(full_text)
-
-    # Elegimos cuál devolver por ahora (vamos con .docx de momento)
-    return file_path.stem  # devuelve solo el nombre base sin extensión
+    return nombre_base, diagnostic_image_path

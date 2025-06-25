@@ -4,6 +4,24 @@ Todos los cambios relevantes de este proyecto se documentan acá.
 
 ---
 
+## [1.4.0] - 2025-06-25
+
+### ✨ Nuevo
+- Gracias a @ioanne, se incorporó el **Editor Experto** de preprocesamiento personalizado.
+- Los usuarios ahora pueden configurar cada paso del preprocesamiento de forma manual:
+  - 🔘 Color y Contraste: Escala de grises, inversión de colores, brillo, contraste, CLAHE.
+  - 🔘 Filtros y Suavizado: Desenfoque Gaussiano y Filtro de Mediana.
+  - 🔘 Transformaciones Geométricas: Corrección de inclinación (Deskew), Rotación manual.
+  - 🔘 Detección de Bordes: Filtro de Canny con umbrales ajustables.
+  - 🔘 Binarización y Morfología: Métodos adaptativos y operaciones morfológicas configurables.
+- Se agregó una nueva interfaz intuitiva y ordenada, en forma de acordeones, para activar/desactivar secciones.
+
+### 🛠️ Interno
+- Mejoras en el frontend para permitir personalización total del flujo de preprocesamiento.
+- Nuevas rutas y lógica en backend para procesar transformaciones de forma dinámica según configuración del usuario.
+
+---
+
 ## [1.3.0] - 2025-05-16
 ### ✨ Agregado
 - Configuración Docker (`Dockerfile`) para contenerizar OcrAPP

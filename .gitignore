@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 uploads/
 outputs/
+diagnostics/
 *.db
 *.log
 *.DS_Store

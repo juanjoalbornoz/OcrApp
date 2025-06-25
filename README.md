@@ -1,15 +1,15 @@
-# 🧾 OCR App - Transformaciones para facilitar la lectura automática
+# 🧾 OCR App - Extracción de texto desde imágenes y PDFs
 
 **Trabajo Final Integrador - Técnicas de Procesamiento Digital de Imágenes**
 
 📅 Año: 2025  
-👨🏻‍🏫 Profesor: Juan Ignacio Bonini
+👨🏻‍🏫 Profesor: Juan Ignacio Bonini (@ioanne)
 🏫 Institución: IFTS 18
 👤 Alumnos:
-- Juan Jose Albornoz
-- Estefany Herrera Martinez
-- Carolina Linares
-- Gonzalo Rey del Castillo
+- Juan Jose Albornoz (@juanjoalbornoz)
+- Estefany Herrera Martinez (@hmestefany)
+- Carolina Linares (@carolinares03)
+- Gonzalo Rey del Castillo (@King-Zalogon)
 
 ---
 
@@ -23,30 +23,39 @@ Su objetivo es facilitar la digitalización de apuntes, estudios médicos, factu
 
 ## 🚀 Funcionalidades
 
-- 📤 Subida de archivos `.pdf`, `.jpg`, `.jpeg` o `.png`
-- 🧼 Opción de mejora de imagen antes del OCR (preprocesamiento)
-- 🔎 Extracción de texto con Tesseract OCR (configurado con `psm 4` u `6`)
-- 📝 Exportación en formato `.docx` y `.txt`
-- 🖥️ Interfaz web visual con botones de descarga
-- 🌐 API REST con FastAPI
-- 📁 Organización modular del código
-- 🧠 Programación orientada a objetos
-- ✅ Control de versiones con Git
-- 🗂️ Registro de cambios (`CHANGELOG.md`)
+- ✅ Extracción de texto desde imágenes (`.jpg`, `.png`) y `.pdf`  
+- ✅ Interfaz simple e intuitiva para subir archivos  
+- ✅ Preprocesamiento automático de imágenes para mejorar la lectura  
+- ✅ Soporte multilenguaje para OCR (incluye español e inglés)  
+- ✅ Exportación del texto extraído a archivos `.txt` y `.docx` 
+- ✅ Visualización en pantalla del resultado del OCR  
+- ✅ (🆕 v1.4.0) **Selector de transformaciones**: podés elegir qué preprocesamientos aplicar a tu imagen antes del OCR
 
 ---
 
-## 🧼 Casos de uso del preprocesamiento
+## 🧪 Transformaciones disponibles
 
-El usuario puede elegir aplicar mejora de imagen antes del OCR. A continuación se muestran las situaciones en las que conviene o no utilizar esta opción:
+Al cargar una imagen, podés elegir aplicar una o más de las siguientes transformaciones:
 
-| Tipo de documento                          | ¿Aplicar mejora? | Motivo                                                                 |
-|--------------------------------------------|------------------|------------------------------------------------------------------------|
-| 📄 PDF limpio y generado por computadora   | ❌ No             | Ya tiene buena calidad, el OCR funciona bien directamente              |
-| 📸 Foto de celular con sombras o torcido   | ✅ Sí             | Mejora contraste y claridad para reconocimiento                        |
-| 🧾 Documento escaneado con letra chica     | ✅ Sí             | Binarización ayuda a separar texto del fondo                          |
-| 🖋️ Documento con firmas o sellos           | ❌ No             | La binarización puede deformar o eliminar partes importantes           |
-| 📃 Formularios con muchas tablas           | ✅ o ❌ Dependiendo| Probar ambas, puede funcionar mejor sin mejora si las líneas son nítidas|
+- 🔘 **Color y Contraste**: Escala de grises, inversión de colores, brillo, contraste, CLAHE.
+- 🔘 **Filtros y Suavizado**: Desenfoque Gaussiano y Filtro de Mediana.
+- 🔘 **Transformaciones Geométricas**: Corrección de inclinación (Deskew), Rotación manual.
+- 🔘 **Detección de Bordes**: Filtro de Canny con umbrales ajustables.
+- 🔘 **Binarización y Morfología**: Métodos adaptativos y operaciones morfológicas configurables.
+
+Estas herramientas permiten **mejorar la precisión del OCR**, adaptándose a distintas calidades y formatos de documentos.
+
+---
+
+## 🛠️ Tecnologías utilizadas
+
+- **Python 3.11**
+- **FastAPI** para el backend
+- **OpenCV** para preprocesamiento de imágenes
+- **Tesseract OCR** para el reconocimiento de texto
+- **Jinja2** para renderizar HTML
+- **Docker** para empaquetado y despliegue
+- **Render** para el hosting
 
 ---
 
@@ -139,26 +148,30 @@ uvicorn app.main:app --reload
 
 ## 📂 Estructura del proyecto
 
-```
-ocr-app/
+```bash
+OcrAPP/
+│
 ├── app/
-│   ├── main.py          # API principal
-│   ├── ocr.py           # Lógica de OCR
-│   ├── preprocess.py    # Mejora de imagen
-│   └── templates/
-│       └── form.html    # Formulario web
-├── static/
-│   └── style.css        # Estilos
-├── uploads/             # Archivos temporales
-├── outputs/             # Archivos generados
-├── requirements.txt
-├── README.md
-├── CHANGELOG.md
-└── .gitignore
+│   ├── main.py                # Lógica principal y rutas FastAPI
+│   ├── ocr.py                 # Funciones de OCR usando Tesseract
+│   ├── preprocess.py          # Funciones de preprocesamiento de imágenes
+│   ├── templates/
+│   │   ├── form.html          # Interfaz web (modo experto)
+│   │   └── resultados.html    # Página de resultados OCR
+│
+├── diagnostics/               # Imágenes preprocesadas para diagnóstico 
+├── static/                    # Estilos CSS y otros recursos estáticos
+├── uploads/                   # Carpeta donde se almacenan archivos temporales subidos
+│
+├── Dockerfile                 # Imagen Docker de la aplicación
+├── render.yaml                # Configuración para desplegar en Render
+├── requirements.txt           # Dependencias del proyecto
+├── README.md                  # Documentación del proyecto
+└── CHANGELOG.md               # Historial de versiones
 ```
 
 ---
 
 ## ❤️ Créditos
 
-Este proyecto fue desarrollado con amor, pruebas, mate y muchas líneas de código por Juanjo, Estefy, Carito y Gonza como parte del trabajo final para la materia **Técnicas de Procesamiento Digital de Imágenes**. Gracias a todos los que acompañaron el proceso 🤗
+Este proyecto fue desarrollado con amor, pruebas, mate y muchas líneas de código por Juanjo, Estefy, Carito y Gonza como parte del trabajo final para la materia **Técnicas de Procesamiento Digital de Imágenes**. Gracias a todos los que acompañaron el proceso, principalmente al profe (@ioanne) por meterse de lleno y potenciarnos 🤗

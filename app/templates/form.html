@@ -1,23 +1,487 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>OCR App</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <h1>OCR - Subí tu archivo</h1>
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="file">📎 Seleccioná un archivo (.pdf, .jpg, .png):</label><br>
-        <input type="file" name="file" accept=".jpg,.jpeg,.png,.pdf" required><br><br>
-        
-        <input type="checkbox" name="preprocesar" id="preprocesar" checked>
-        <label for="preprocesar"><strong>Aplicar mejora de imagen antes del OCR</strong></label><br>
-        <small style="color: #555;">
-            ✅ Recomendado para escaneos borrosos, fotos de celular o documentos de baja calidad.<br>
-            ❌ Desactivar si el archivo ya es nítido o tiene firmas, sellos o tablas complejas.
-        </small><br><br>
-    
-        <button type="submit">Procesar</button>
-    </form>
-</body>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>OCR Pro - Editor Experto</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            input[type='range'] {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 100%;
+                height: 8px;
+                background: #e5e7eb;
+                border-radius: 5px;
+                outline: none;
+                transition: opacity 0.2s;
+            }
+            input[type='range']::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 20px;
+                height: 20px;
+                background: #1e40af;
+                cursor: pointer;
+                border-radius: 50%;
+            }
+            input[type='range']::-moz-range-thumb {
+                width: 20px;
+                height: 20px;
+                background: #1e40af;
+                cursor: pointer;
+                border-radius: 50%;
+            }
+
+            .accordion-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease-out;
+                background-color: white;
+            }
+
+            .hidden {
+                display: none;
+            }
+            .param-group[disabled] {
+                opacity: 0.5;
+                pointer-events: none;
+            }
+        </style>
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="container mx-auto p-4 sm:p-8 max-w-5xl">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-gray-800">OCR Pro - Editor Experto</h1>
+                    <p class="text-gray-500 mt-2">Sube un archivo y aplica una cadena de preprocesamiento personalizada.</p>
+                </div>
+
+                <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data" class="space-y-8">
+                    <div>
+                        <label class="block text-lg font-medium text-gray-700 mb-2">📎 1. Selecciona un archivo</label>
+                        <div
+                            id="drop-zone"
+                            class="relative mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md"
+                        >
+                            <div id="upload-prompt" class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                    <path
+                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    ></path>
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label
+                                        for="file-upload"
+                                        class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500"
+                                        ><span>Cargar un archivo</span
+                                        ><input
+                                            id="file-upload"
+                                            name="file"
+                                            type="file"
+                                            class="sr-only"
+                                            accept=".jpg,.jpeg,.png,.pdf"
+                                            required=""
+                                    /></label>
+                                    <p class="pl-1">o arrástralo aquí</p>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, JPEG, PDF</p>
+                            </div>
+                            <div id="file-preview" class="hidden w-full text-center">
+                                <div id="preview-container" class="mb-2 max-h-48 flex justify-center"></div>
+                                <p id="file-name" class="text-sm font-medium text-gray-700"></p>
+                                <button type="button" id="remove-file-btn" class="absolute top-2 right-2 text-gray-500 hover:text-red-600">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                        ></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-2xl font-semibold text-gray-700 mb-6 text-center">⚙️ 2. Configura el Preprocesamiento</h3>
+                        <div id="accordion-container" class="space-y-2">
+                            <div class="accordion-item border rounded-md">
+                                <button
+                                    type="button"
+                                    class="accordion-header w-full flex justify-between items-center p-4 bg-gray-200 hover:bg-gray-300"
+                                >
+                                    <span class="font-semibold text-lg text-gray-800">Color y Contraste</span>
+                                    <svg
+                                        class="w-6 h-6 transform transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200">
+                                        <label class="flex items-center"
+                                            ><input type="checkbox" name="grayscale" class="h-5 w-5 rounded" />
+                                            <span class="ml-2">Convertir a escala de grises</span></label
+                                        >
+                                        <label class="flex items-center"
+                                            ><input type="checkbox" name="invert_colors" class="h-5 w-5 rounded" />
+                                            <span class="ml-2">Invertir colores</span></label
+                                        >
+                                        <div class="param-group">
+                                            <label>Brillo (-100 a 100): <span class="value-display">0</span></label>
+                                            <input type="range" name="brillo" min="-100" max="100" value="0" class="w-full" />
+                                        </div>
+                                        <div class="param-group">
+                                            <label>Contraste (0.5 a 3.0): <span class="value-display">1.0</span></label>
+                                            <input
+                                                type="range"
+                                                name="contraste"
+                                                min="0.5"
+                                                max="3.0"
+                                                value="1.0"
+                                                step="0.1"
+                                                class="w-full"
+                                            />
+                                        </div>
+                                        <label class="flex items-center md:col-span-2"
+                                            ><input
+                                                type="checkbox"
+                                                name="hist_equalization"
+                                                data-controls="clahe-params"
+                                                class="h-5 w-5 rounded"
+                                            />
+                                            <span class="ml-2">Ecualización de Histograma (Adaptativa/CLAHE)</span></label
+                                        >
+                                        <div id="clahe-params" class="param-group md:col-span-2 space-y-2 pl-6 border-l-2 ml-2" disabled>
+                                            <label>Límite de Contraste (CLAHE): <span class="value-display">2.0</span></label>
+                                            <input
+                                                type="range"
+                                                name="clahe_clip_limit"
+                                                min="1.0"
+                                                max="10.0"
+                                                value="2.0"
+                                                step="0.5"
+                                                class="w-full"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Acordeón: Filtros y Suavizado -->
+                            <div class="accordion-item border rounded-md">
+                                <button
+                                    type="button"
+                                    class="accordion-header w-full flex justify-between items-center p-4 bg-gray-200 hover:bg-gray-300"
+                                >
+                                    <span class="font-semibold text-lg text-gray-800">Filtros y Suavizado</span>
+                                    <svg
+                                        class="w-6 h-6 transform transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200">
+                                        <label class="flex items-center"
+                                            ><input
+                                                type="checkbox"
+                                                name="gaussian_blur"
+                                                data-controls="gaussian-params"
+                                                class="h-5 w-5 rounded"
+                                            />
+                                            <span class="ml-2">Desenfoque Gaussiano</span></label
+                                        >
+                                        <div id="gaussian-params" class="param-group" disabled>
+                                            <label>Tamaño Kernel: <span class="value-display">3</span></label>
+                                            <input type="range" name="gaussian_kernel" min="3" max="15" value="3" step="2" class="w-full" />
+                                        </div>
+                                        <label class="flex items-center"
+                                            ><input
+                                                type="checkbox"
+                                                name="median_blur"
+                                                data-controls="median-params"
+                                                class="h-5 w-5 rounded"
+                                            />
+                                            <span class="ml-2">Filtro de Mediana</span></label
+                                        >
+                                        <div id="median-params" class="param-group" disabled>
+                                            <label>Tamaño Kernel: <span class="value-display">3</span></label>
+                                            <input type="range" name="median_kernel" min="3" max="15" value="3" step="2" class="w-full" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item border rounded-md">
+                                <button
+                                    type="button"
+                                    class="accordion-header w-full flex justify-between items-center p-4 bg-gray-200 hover:bg-gray-300"
+                                >
+                                    <span class="font-semibold text-lg text-gray-800">Transformaciones Geométricas</span>
+                                    <svg
+                                        class="w-6 h-6 transform transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200">
+                                        <label class="flex items-center"
+                                            ><input type="checkbox" name="deskew" class="h-5 w-5 rounded" />
+                                            <span class="ml-2">Corregir inclinación (Deskew)</span></label
+                                        >
+                                        <div class="param-group">
+                                            <label>Rotación Manual (grados): <span class="value-display">0</span></label>
+                                            <input type="range" name="rotation" min="-90" max="90" value="0" step="1" class="w-full" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item border rounded-md">
+                                <button
+                                    type="button"
+                                    class="accordion-header w-full flex justify-between items-center p-4 bg-gray-200 hover:bg-gray-300"
+                                >
+                                    <span class="font-semibold text-lg text-gray-800">Detección de Bordes</span>
+                                    <svg
+                                        class="w-6 h-6 transform transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-200">
+                                        <label class="flex items-center"
+                                            ><input
+                                                type="checkbox"
+                                                name="canny_edge"
+                                                data-controls="canny-params"
+                                                class="h-5 w-5 rounded"
+                                            />
+                                            <span class="ml-2">Filtro de Canny</span></label
+                                        >
+                                        <div id="canny-params" class="param-group md:col-span-2 grid grid-cols-2 gap-4" disabled>
+                                            <div>
+                                                <label>Umbral 1: <span class="value-display">100</span></label>
+                                                <input type="range" name="canny_thresh1" min="0" max="255" value="100" class="w-full" />
+                                            </div>
+                                            <div>
+                                                <label>Umbral 2: <span class="value-display">200</span></label>
+                                                <input type="range" name="canny_thresh2" min="0" max="255" value="200" class="w-full" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item border rounded-md">
+                                <button
+                                    type="button"
+                                    class="accordion-header w-full flex justify-between items-center p-4 bg-gray-200 hover:bg-gray-300"
+                                >
+                                    <span class="font-semibold text-lg text-gray-800">Binarización y Morfología</span>
+                                    <svg
+                                        class="w-6 h-6 transform transition-transform"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-8 border-t border-gray-200">
+                                        <div class="space-y-4">
+                                            <h4 class="font-semibold text-gray-700">Técnica de Binarización</h4>
+                                            <label class="flex items-center"
+                                                ><input
+                                                    type="checkbox"
+                                                    name="binarization"
+                                                    data-controls="binarization-params"
+                                                    class="h-5 w-5 rounded"
+                                                />
+                                                <span class="ml-2">Aplicar Binarización</span></label
+                                            >
+                                            <div id="binarization-params" class="param-group pl-6 border-l-2 ml-2 space-y-4" disabled>
+                                                <label class="flex items-center"
+                                                    ><input
+                                                        type="radio"
+                                                        name="binarization_method"
+                                                        value="adaptive"
+                                                        class="h-4 w-4"
+                                                        checked
+                                                    />
+                                                    <span class="ml-2">Adaptativa</span></label
+                                                >
+                                                <label class="flex items-center"
+                                                    ><input type="radio" name="binarization_method" value="otsu" class="h-4 w-4" />
+                                                    <span class="ml-2">Otsu</span></label
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <h4 class="font-semibold text-gray-700">Operaciones Morfológicas</h4>
+                                            <label class="flex items-center"
+                                                ><input
+                                                    type="checkbox"
+                                                    name="morphology"
+                                                    data-controls="morphology-params"
+                                                    class="h-5 w-5 rounded"
+                                                />
+                                                <span class="ml-2">Aplicar Morfología</span></label
+                                            >
+                                            <div id="morphology-params" class="param-group pl-6 border-l-2 ml-2 space-y-4" disabled>
+                                                <select name="morph_op" class="w-full p-2 border rounded-md">
+                                                    <option value="erosion">Erosión</option>
+                                                    <option value="dilation">Dilatación</option>
+                                                    <option value="opening">Apertura</option>
+                                                    <option value="closing">Cierre</option>
+                                                </select>
+                                                <div>
+                                                    <label>Iteraciones: <span class="value-display">1</span></label>
+                                                    <input type="range" name="morph_iter" min="1" max="5" value="1" class="w-full" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-5">
+                        <button
+                            type="submit"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        >
+                            ✨ Procesar y Extraer Texto
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.accordion-header').forEach((header) => {
+                    header.addEventListener('click', () => {
+                        const content = header.nextElementSibling;
+                        const icon = header.querySelector('svg');
+                        const isOpen = content.style.maxHeight;
+
+                        document.querySelectorAll('.accordion-content').forEach((c) => {
+                            if (c !== content) {
+                                c.style.maxHeight = null;
+                                c.previousElementSibling.querySelector('svg').classList.remove('rotate-180');
+                            }
+                        });
+
+                        if (isOpen) {
+                            content.style.maxHeight = null;
+                            icon.classList.remove('rotate-180');
+                        } else {
+                            icon.classList.add('rotate-180');
+                            content.style.maxHeight = content.scrollHeight + 'px';
+                        }
+                    });
+                });
+
+                const firstAccordionHeader = document.querySelector('.accordion-header');
+                if (firstAccordionHeader) {
+                    firstAccordionHeader.click();
+                }
+
+                document.querySelectorAll('input[type="range"]').forEach((slider) => {
+                    const display = slider.parentElement.querySelector('.value-display');
+                    if (display) {
+                        slider.oninput = () => (display.textContent = slider.value);
+                        display.textContent = slider.value;
+                    }
+                });
+
+                document.querySelectorAll('input[type="checkbox"][data-controls]').forEach((checkbox) => {
+                    const controlledGroupId = checkbox.dataset.controls;
+                    const controlledGroup = document.getElementById(controlledGroupId);
+                    if (controlledGroup) {
+                        const updateState = () => controlledGroup.toggleAttribute('disabled', !checkbox.checked);
+                        checkbox.addEventListener('change', updateState);
+                        updateState();
+                    }
+                });
+
+                const fileUpload = document.getElementById('file-upload');
+                const dropZone = document.getElementById('drop-zone');
+                const uploadPrompt = document.getElementById('upload-prompt');
+                const filePreview = document.getElementById('file-preview');
+                const previewContainer = document.getElementById('preview-container');
+                const fileNameSpan = document.getElementById('file-name');
+                const removeFileBtn = document.getElementById('remove-file-btn');
+
+                const displayFilePreview = (file) => {
+                    if (!file) return;
+                    uploadPrompt.classList.add('hidden');
+                    filePreview.classList.remove('hidden');
+                    fileNameSpan.textContent = file.name;
+                    previewContainer.innerHTML = '';
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = 'max-h-40 object-contain rounded-md';
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type === 'application/pdf') {
+                        previewContainer.innerHTML = `<svg class="w-24 h-24 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V7.414A2 2 0 0017.414 6L14 2.586A2 2 0 0012.586 2H4zm4 8a1 1 0 100 2h4a1 1 0 100-2H8z" clip-rule="evenodd"></path></svg>`;
+                    }
+                };
+                const resetFileInput = () => {
+                    fileUpload.value = '';
+                    uploadPrompt.classList.remove('hidden');
+                    filePreview.classList.add('hidden');
+                };
+                fileUpload.addEventListener('change', () => displayFilePreview(fileUpload.files[0]));
+                removeFileBtn.addEventListener('click', resetFileInput);
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.add('border-blue-500');
+                });
+                dropZone.addEventListener('dragleave', () => dropZone.classList.remove('border-blue-500'));
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.classList.remove('border-blue-500');
+                    if (e.dataTransfer.files.length > 0) {
+                        fileUpload.files = e.dataTransfer.files;
+                        displayFilePreview(e.dataTransfer.files[0]);
+                    }
+                });
+            });
+        </script>
+    </body>
 </html>

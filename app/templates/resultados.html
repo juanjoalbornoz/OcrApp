@@ -1,14 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Resultado OCR</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <h1>¡Texto procesado con éxito! 🎉</h1>
-    <p>Descargá el archivo en el formato que prefieras:</p>
-    <a href="/descargar/{{ nombre_base }}.docx" class="boton">📄 Descargar .docx</a>
-    <a href="/descargar/{{ nombre_base }}.txt" class="boton">📃 Descargar .txt</a>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Resultados del OCR</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="bg-gray-100 font-sans">
+        <div class="container mx-auto p-4 sm:p-8 max-w-5xl">
+            <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="text-center mb-8">
+                    <h1 class="text-4xl font-bold text-gray-800">✅ ¡Proceso Completado!</h1>
+                    <p class="text-gray-500 mt-2">Aquí tienes los resultados de la extracción de texto.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Vista Previa de la Imagen Procesada</h3>
+                        <p class="text-sm text-gray-600 mb-4">
+                            Esta es la imagen después de aplicar los filtros seleccionados. Así es como Tesseract "vio" el documento.
+                        </p>
+                        <div class="border-2 border-gray-200 rounded-md overflow-hidden">
+                            {% if diagnostic_image %}
+                            <img
+                                src="/descargar/{{ diagnostic_image }}"
+                                alt="Imagen procesada para OCR"
+                                class="w-full h-auto object-contain"
+                            />
+                            {% else %}
+                            <p class="text-center p-8 text-gray-500">No se generó una imagen de vista previa.</p>
+                            {% endif %}
+                        </div>
+                        <a
+                            href="/descargar/{{ diagnostic_image }}"
+                            download
+                            class="mt-4 inline-block w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-300"
+                        >
+                            Descargar Imagen de Vista Previa
+                        </a>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Descargar Resultados</h3>
+                            <div class="space-y-3">
+                                <a
+                                    href="/descargar/{{ nombre_base }}.docx"
+                                    class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
+                                >
+                                    📄 Descargar .DOCX
+                                </a>
+                                <a
+                                    href="/descargar/{{ nombre_base }}.txt"
+                                    class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
+                                >
+                                    📝 Descargar .TXT
+                                </a>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Parámetros Utilizados</h3>
+                            <ul class="list-disc list-inside bg-gray-50 p-4 rounded-lg text-gray-700 space-y-2">
+                                {% for key, value in opciones.items() %}
+                                <li>
+                                    <strong>{{ key.replace('_', ' ').title() }}:</strong>
+                                    <span class="font-mono bg-gray-200 px-2 py-1 rounded-md text-sm">{{ value }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <a href="/" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300">
+                        &larr; Volver y procesar otro archivo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>

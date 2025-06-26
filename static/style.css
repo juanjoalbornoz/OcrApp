@@ -30,3 +30,41 @@ form {
 .boton:hover {
     background-color: #005fa3;
 }
+
+.resultado-container {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.preview-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.preview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.parametros-section {
+    flex: 1;
+    min-width: 300px;
+}
+
+.parametros-lista {
+    list-style: none;
+    padding-left: 0;
+}
+
+.input-corto {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}

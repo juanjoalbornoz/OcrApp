@@ -52,7 +52,7 @@ Estas herramientas permiten **mejorar la precisión del OCR**, adaptándose a di
 
 ## 🛠️ Tecnologías utilizadas
 
-- **Python 3.13**
+- **Python 3.10**
 - **FastAPI** para el backend
 - **OpenCV** para preprocesamiento de imágenes
 - **Tesseract OCR** para el reconocimiento de texto

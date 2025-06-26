@@ -95,7 +95,8 @@ async def handle_file_upload(
             "request": request,
             "nombre_base": nombre_base,
             "diagnostic_image": diagnostic_image_path,
-            "opciones": opciones_preproceso
+            "opciones": opciones_preproceso,
+            "user_id": get_current_user_id(request)
         })
     except Exception as e:
         import traceback

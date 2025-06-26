@@ -15,63 +15,88 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                    <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4">Vista Previa de la Imagen Procesada</h3>
-                        <p class="text-sm text-gray-600 mb-4">
-                            Esta es la imagen después de aplicar los filtros seleccionados. Así es como Tesseract "vio" el documento.
-                        </p>
-                        <div class="border-2 border-gray-200 rounded-md overflow-hidden">
-                            {% if diagnostic_image %}
-                            <img
-                                src="/descargar/{{ diagnostic_image }}"
-                                alt="Imagen procesada para OCR"
-                                class="w-full h-auto object-contain"
-                            />
-                            {% else %}
-                            <p class="text-center p-8 text-gray-500">No se generó una imagen de vista previa.</p>
-                            {% endif %}
-                        </div>
-                        <a
-                            href="/descargar/{{ diagnostic_image }}"
-                            download
-                            class="mt-4 inline-block w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-300"
-                        >
-                            Descargar Imagen de Vista Previa
-                        </a>
-                    </div>
-
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Descargar Resultados</h3>
-                            <div class="space-y-3">
-                                <a
-                                    href="/descargar/{{ nombre_base }}.docx"
-                                    class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
-                                >
-                                    📄 Descargar .DOCX
-                                </a>
-                                <a
-                                    href="/descargar/{{ nombre_base }}.txt"
-                                    class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
-                                >
-                                    📝 Descargar .TXT
-                                </a>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-xl font-semibold text-gray-700 mb-4">Parámetros Utilizados</h3>
-                            <ul class="list-disc list-inside bg-gray-50 p-4 rounded-lg text-gray-700 space-y-2">
-                                {% for key, value in opciones.items() %}
-                                <li>
-                                    <strong>{{ key.replace('_', ' ').title() }}:</strong>
-                                    <span class="font-mono bg-gray-200 px-2 py-1 rounded-md text-sm">{{ value }}</span>
-                                </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                <!-- Columna izquierda: Imagen -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                <h3 class="text-xl font-semibold text-gray-700 mb-4">Vista Previa de la Imagen Procesada</h3>
+                <p class="text-sm text-gray-600 mb-4">
+                    Esta es la imagen después de aplicar los filtros seleccionados. Así es como Tesseract "vio" el documento.
+                </p>
+                <div class="border-2 border-gray-200 rounded-md overflow-hidden">
+                    {% if diagnostic_image %}
+                    <img
+                    src="/descargar/{{ diagnostic_image }}"
+                    alt="Imagen procesada para OCR"
+                    class="w-full h-auto object-contain"
+                    />
+                    {% else %}
+                    <p class="text-center p-8 text-gray-500">No se generó una imagen de vista previa.</p>
+                    {% endif %}
+                </div>
+                <a
+                    href="/descargar/{{ diagnostic_image }}"
+                    download
+                    class="mt-4 inline-block w-full text-center bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded transition-colors duration-300"
+                >
+                    Descargar Imagen de Vista Previa
+                </a>
+                </div>
+            
+                <!-- Columna derecha: Formulario + descargas + parámetros -->
+                <div class="space-y-6">
+                {% if user_id %}
+                <div class="bg-gray-50 p-4 rounded-lg shadow-inner">
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">💾 Guardar como preset</h3>
+                    <form method="post" action="/guardar_preset" class="space-y-4">
+                    <input type="hidden" name="opciones" value='{{ opciones | tojson }}'>
+                    <label for="preset_name" class="block text-gray-600 font-medium">Nombre del preset:</label>
+                    <input
+                        type="text"
+                        name="preset_name"
+                        id="preset_name"
+                        required
+                        class="w-full border border-gray-300 rounded px-3 py-2"
+                    />
+                    <button
+                        type="submit"
+                        class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded transition"
+                    >
+                        Guardar preset
+                    </button>
+                    </form>
+                </div>
+                {% endif %}
+            
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Descargar Resultados</h3>
+                    <div class="space-y-3">
+                    <a
+                        href="/descargar/{{ nombre_base }}.docx"
+                        class="block w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
+                    >
+                        📄 Descargar .DOCX
+                    </a>
+                    <a
+                        href="/descargar/{{ nombre_base }}.txt"
+                        class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300 text-lg"
+                    >
+                        📝 Descargar .TXT
+                    </a>
                     </div>
                 </div>
+            
+                <div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-4">Parámetros Utilizados</h3>
+                    <ul class="list-disc list-inside bg-gray-50 p-4 rounded-lg text-gray-700 space-y-2">
+                    {% for key, value in opciones.items() %}
+                    <li>
+                        <strong>{{ key.replace('_', ' ').title() }}:</strong>
+                        <span class="font-mono bg-gray-200 px-2 py-1 rounded-md text-sm">{{ value }}</span>
+                    </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                </div>
+            </div>
 
                 <div class="mt-12 text-center">
                     <a href="/" class="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-300">

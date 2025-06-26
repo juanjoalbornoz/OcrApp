@@ -2,9 +2,12 @@
 
 **Trabajo Final Integrador - Técnicas de Procesamiento Digital de Imágenes**
 
-📅 Año: 2025  
+📅 Año: 2025
+
 👨🏻‍🏫 Profesor: Juan Ignacio Bonini (@ioanne)
+
 🏫 Institución: IFTS 18
+
 👤 Alumnos:
 - Juan Jose Albornoz (@juanjoalbornoz)
 - Estefany Herrera Martinez (@hmestefany)
@@ -49,7 +52,7 @@ Estas herramientas permiten **mejorar la precisión del OCR**, adaptándose a di
 
 ## 🛠️ Tecnologías utilizadas
 
-- **Python 3.11**
+- **Python 3.13**
 - **FastAPI** para el backend
 - **OpenCV** para preprocesamiento de imágenes
 - **Tesseract OCR** para el reconocimiento de texto

@@ -4,6 +4,49 @@ Todos los cambios relevantes de este proyecto se documentan acá.
 
 ---
 
+## [1.5.0] - 2025-06-30
+
+### 🔐 Autenticación y Usuarios
+- **Sistema completo de usuarios**: Registro, login y logout con hash de contraseñas
+- **Gestión de presets por usuario**: Cada usuario puede guardar y gestionar sus propias configuraciones
+- **Recuperación de contraseña innovadora**: Sistema único que usa los presets guardados del usuario como método de verificación de identidad
+- **Sistema de seguridad avanzado**: Bloqueo temporal de 10 minutos después de fallar en la verificación de preset durante recuperación de contraseña
+- **Redirección inteligente**: Los usuarios que se loguean desde la página de resultados regresan automáticamente a ver sus resultados
+
+### 🎨 Mejoras de Interfaz
+- **Navegación consistente**: Barra superior unificada en todas las páginas con estado de login
+- **Selector de presets**: Los usuarios autenticados pueden cargar configuraciones guardadas anteriormente
+- **Notificaciones visuales**: Mensajes de éxito al guardar presets y feedback claro en todas las acciones
+- **Diseño responsivo mejorado**: Alineación perfecta y experiencia visual profesional en toda la aplicación
+- **Templates especializados**: Páginas dedicadas para login, registro, recuperación de contraseña y desafío de verificación
+
+### 🎯 Experiencia de Usuario
+- **Condicionamiento inteligente de UI**: La interfaz se adapta según el estado de autenticación del usuario
+- **Preservación de contexto**: Los usuarios no logueados pueden procesar imágenes y luego autenticarse sin perder su trabajo
+- **Invitación a registro**: Mensajes amigables que invitan a crear cuenta para acceder a funciones premium
+- **Sistema de presets mejorado**: Carga fácil de configuraciones con un clic desde un selector visual
+
+### 🛡️ Seguridad
+- **Verificación de identidad única**: Sistema de recuperación de contraseña basado en presets del usuario (5+ opciones mezcladas con señuelos)
+- **Protección contra ataques**: Bloqueo automático después de intentos fallidos de recuperación
+- **Validación robusta**: Múltiples capas de verificación en todos los formularios
+- **Gestión segura de sesiones**: Cookies HTTP-only y redirecciones validadas
+
+### 🚀 Deploy y Producción
+- **Inicialización automática de BD**: La base de datos se crea automáticamente al arrancar la aplicación
+- **Compatibilidad con Render**: Configuración completa para deploy en la nube
+- **Servicio de archivos estáticos**: Soporte completo para CSS y assets
+- **Health check endpoint**: Monitoreo del estado de la aplicación para plataformas cloud
+- **Rutas optimizadas**: Todas las rutas son relativas y funcionan en cualquier entorno
+
+### 🛠️ Interno
+- **Arquitectura modular**: Separación clara entre autenticación, base de datos y lógica de negocio
+- **Gestión de errores mejorada**: Manejo robusto de excepciones y validaciones
+- **Base de datos optimizada**: Nuevas tablas para usuarios, presets y sistemas de seguridad
+- **Dockerfile mejorado**: Soporte para Tesseract en español y optimizaciones de producción
+
+---
+
 ## [1.4.0] - 2025-06-25
 
 ### ✨ Nuevo

@@ -3,3 +3,10 @@ services:
     name: ocrapp
     env: docker
     plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 10000

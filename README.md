@@ -130,7 +130,7 @@ La app está desplegada en:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/tu_usuario/ocr-app.git
+https://github.com/juanjoalbornoz/OcrApp.git
 cd ocr-app
 ```
 
